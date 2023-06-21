@@ -18,15 +18,6 @@ kprobe:renesas_xhci_check_request_fw
 
 #include <linux/pci.h>
 
-#define RENESAS_FW_VERSION                              0x6C
-#define RENESAS_ROM_CONFIG                              0xF0
-#define RENESAS_FW_STATUS                               0xF4
-#define RENESAS_FW_STATUS_MSB                           0xF5
-#define RENESAS_ROM_STATUS                              0xF6
-#define RENESAS_ROM_STATUS_MSB                          0xF7
-#define RENESAS_DATA0                                   0xF8
-#define RENESAS_DATA1                                   0xFC
-
 BEGIN {
 	printf("Renesas PCI trace started... hit ctrl+c to end\n");
 }
@@ -47,7 +38,7 @@ kprobe:pci_read_config* {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
 	if($pci_vendor == 0x1912) {
-		printf("Reading the config %x from PCI %4x:%4x - content %x\n", arg1, $pci_vendor, $pci_device, *arg2);
+		printf("Reading the config register %x from PCI %04x:%04x - content %x\n", arg1, $pci_vendor, $pci_device, *arg2);
 	}
 }
 
@@ -55,6 +46,6 @@ kprobe:pci_write_config* {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
 	if($pci_vendor == 0x1912) {
-		printf("Writing the config %x from PCI %4x:%4x - content %x\n", arg1, $pci_vendor, $pci_device, *arg2);
+		printf("Writing the config register %x from PCI %04x:%04x - content %04x\n", arg1, $pci_vendor, $pci_device, arg2);
 	}
 }
