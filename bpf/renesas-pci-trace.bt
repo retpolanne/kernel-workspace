@@ -1,0 +1,60 @@
+/*
+[root@cyberia ~]#  bpftrace -l 'kprobe:pci_read_config*'
+kprobe:pci_read_config
+kprobe:pci_read_config_byte
+kprobe:pci_read_config_dword
+kprobe:pci_read_config_word
+[root@cyberia ~]#  bpftrace -l 'kprobe:pci_write_config*'
+kprobe:pci_write_config
+kprobe:pci_write_config_byte
+kprobe:pci_write_config_dword
+kprobe:pci_write_config_word
+[root@cyberia ~]#  bpftrace -l 'kprobe:renesas*'
+kprobe:renesas_check_rom
+kprobe:renesas_fw_check_running
+kprobe:renesas_fw_download_image
+kprobe:renesas_xhci_check_request_fw
+*/
+
+#include <linux/pci.h>
+
+#define RENESAS_FW_VERSION                              0x6C
+#define RENESAS_ROM_CONFIG                              0xF0
+#define RENESAS_FW_STATUS                               0xF4
+#define RENESAS_FW_STATUS_MSB                           0xF5
+#define RENESAS_ROM_STATUS                              0xF6
+#define RENESAS_ROM_STATUS_MSB                          0xF7
+#define RENESAS_DATA0                                   0xF8
+#define RENESAS_DATA1                                   0xFC
+
+BEGIN {
+	printf("Renesas PCI trace started... hit ctrl+c to end\n");
+}
+
+kprobe:renesas_fw_check_running {
+	printf("Renesas check fw running has been called\n");
+}
+
+kprobe:renesas_fw_download_image {
+	printf("Renesas download image has been called\n");
+}
+
+kprobe:renesas_check_rom {
+	printf("Renesas check rom has been called\n");
+}
+
+kprobe:pci_read_config* {
+	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
+	$pci_device = ((struct pci_dev *)arg0)->device;
+	if($pci_vendor == 0x1912) {
+		printf("Reading the config %x from PCI %4x:%4x - content %x\n", arg1, $pci_vendor, $pci_device, *arg2);
+	}
+}
+
+kprobe:pci_write_config* {
+	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
+	$pci_device = ((struct pci_dev *)arg0)->device;
+	if($pci_vendor == 0x1912) {
+		printf("Writing the config %x from PCI %4x:%4x - content %x\n", arg1, $pci_vendor, $pci_device, *arg2);
+	}
+}
