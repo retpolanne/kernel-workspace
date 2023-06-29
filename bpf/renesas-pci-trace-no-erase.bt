@@ -26,14 +26,6 @@ kprobe:renesas_fw_check_running {
 	printf("Renesas check fw running has been called\n");
 }
 
-kprobe:renesas_fw_download_image {
-	printf("Renesas download image has been called with iterator i=%d\n", arg2);
-}
-
-kprobe:renesas_check_rom {
-	printf("Renesas check rom has been called\n");
-}
-
 kprobe:pci_read_config* {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
