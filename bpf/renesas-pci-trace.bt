@@ -34,6 +34,14 @@ kprobe:renesas_check_rom {
 	printf("Renesas check rom has been called\n");
 }
 
+kprobe:pci_read_config_byte {
+	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
+	$pci_device = ((struct pci_dev *)arg0)->device;
+	if($pci_vendor == 0x1912) {
+		printf("Reading the config register %x from PCI %04x:%04x - content %1x\n", arg1, $pci_vendor, $pci_device, *arg2);
+	}
+}
+
 kprobe:pci_read_config* {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
