@@ -17,6 +17,10 @@
 
 ## Adding the erase ROM debugfs command
 
+### Freshly booted with firmware flashed to the ROM through flashrom
+
+Scenario: ROM was erased through debugfs command, then FW was flashed to the ROM directly using flashrom. The code to erase the ROM on module bootstrap was **kept**.
+
 ### After timeout
 
 ## Increasing timeout
@@ -79,6 +83,58 @@ xxd renesas-dump-after-successful-flash-erased.bin| head
 ## Without the erase ROM function
 
 ### Freshly booted
+
+### Freshly booted with firmware flashed to the ROM through flashrom
+
+Scenario: ROM was erased through debugfs command, then FW was flashed to the ROM directly using flashrom. The code to erase the ROM on module bootstrap was **removed**.
+
+Padded the firmware from [here](https://www.startech.com/en-de/cards-adapters/pciusb3s22) with FF at the end, then flashed it:
+
+```sh
+head -c 511276 /dev/zero | tr "\000" "\377" >> K2026090-padded.mem
+sudo ./flashrom --programmer ch341a_spi -w ~/Dev/kernel-workspace/bpf/renesas-test-cases/K2026090-padded.mem 
+
+flashrom 1.4.0-devel (git:) on Linux 6.3.8-arch1-1-renesas-bpf (x86_64)
+flashrom is free software, get the source code at https://flashrom.org
+
+Using clock_gettime for delay loops (clk_id: 1, resolution: 1ns).
+Found PUYA flash chip "P25Q40H" (512 kB, SPI) on ch341a_spi.
+===
+This flash part has status UNTESTED for operations: WP
+The test status of this chip may have been updated in the latest development
+version of flashrom. If you are running the latest development version,
+please email a report to flashrom@flashrom.org if any of the above operations
+work correctly for you with this flash chip. Please include the flashrom log
+file for all operations you tested (see the man page for details), and mention
+which mainboard or programmer you tested in the subject line.
+Thanks for your help!
+Reading old flash chip contents... done.
+Erase/write done from 0 to 7ffff
+Verifying flash... VERIFIED.
+```
+
+It seems to have loaded just fine! 
+
+```sh
+[Thu Jun 29 19:29:49 2023] xhci_hcd 0000:06:00.0: External ROM exists
+[Thu Jun 29 19:29:49 2023] xhci_hcd 0000:06:00.0: Found ROM version: 2026
+[Thu Jun 29 19:29:49 2023] xhci_hcd 0000:06:00.0: ROM exists
+[Thu Jun 29 19:29:49 2023] xhci_hcd 0000:06:00.0: Unknown ROM status ...
+[Thu Jun 29 19:29:49 2023] xhci_hcd 0000:06:00.0: FW is not ready/loaded yet.
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: xHCI Host Controller
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: new USB bus registered, assigned bus number 3
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: Zeroing 64bit base registers, expecting fault
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: hcc params 0x014051cf hci version 0x100 quirks 0x0000001100000410
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: Got SBRN 48
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: MWI active
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: Finished xhci_pci_reinit
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: xHCI Host Controller
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: new USB bus registered, assigned bus number 4
+[Thu Jun 29 19:29:50 2023] xhci_hcd 0000:06:00.0: Host supports USB 3.0 SuperSpeed
+[Thu Jun 29 19:29:50 2023] usb usb3: SerialNumber: 0000:06:00.0
+[Thu Jun 29 19:29:50 2023] usb usb4: SerialNumber: 0000:06:00.0
+[Thu Jun 29 19:30:38 2023] input: Yubico YubiKey OTP+FIDO+CCID
+```
 
 ### Module reinit
 
