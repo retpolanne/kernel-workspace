@@ -1,5 +1,8 @@
 # Renesas test cases
 
+> Dump flash before booting
+> Erase flash completely?
+
 ## Upstream code
 
 ### Freshly booted, timeout 10000
