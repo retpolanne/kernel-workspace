@@ -38,16 +38,23 @@ kprobe:pci_read_config_byte {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
 	if($pci_vendor == 0x1912) {
-		printf("Reading the config register %x from PCI %04x:%04x - content %1x\n", arg1, $pci_vendor, $pci_device, *arg2);
+		printf("Reading the config register %02hhx from PCI %04x:%04x - content byte %02hhx\n", arg1, $pci_vendor, $pci_device, *arg2);
 	}
 }
 
-kprobe:pci_read_config* {
+kprobe:pci_read_config_word {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
-	$big_endian_arg2 = (( *arg2  >> 8) |  (( *arg2 << 8) & 0x00FF00));
 	if($pci_vendor == 0x1912) {
-		printf("Reading the config register %x from PCI %04x:%04x - content %x\n", arg1, $pci_vendor, $pci_device, $big_endian_arg2);
+		printf("Reading the config register %02hhx from PCI %04x:%04x - content word %lx\n", arg1, $pci_vendor, $pci_device, *arg2);
+	}
+}
+
+kprobe:pci_read_config_dword {
+	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
+	$pci_device = ((struct pci_dev *)arg0)->device;
+	if($pci_vendor == 0x1912) {
+		printf("Reading the config register %02hhx from PCI %04x:%04x - content dword %08x\n", arg1, $pci_vendor, $pci_device, *arg2);
 	}
 }
 
@@ -55,6 +62,6 @@ kprobe:pci_write_config* {
 	$pci_vendor = ((struct pci_dev *)arg0)->vendor;
 	$pci_device = ((struct pci_dev *)arg0)->device;
 	if($pci_vendor == 0x1912) {
-		printf("Writing the config register %x from PCI %04x:%04x - content %04x\n", arg1, $pci_vendor, $pci_device, arg2);
+		printf("Writing the config register %02hhx from PCI %04x:%04x - content %04x\n", arg1, $pci_vendor, $pci_device, arg2);
 	}
 }
